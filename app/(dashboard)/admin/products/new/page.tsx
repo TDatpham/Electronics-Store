@@ -227,8 +227,11 @@ const AddNewProduct = () => {
             type="file"
             className="file-input file-input-bordered file-input-lg w-full max-w-sm"
             onChange={(e: any) => {
-              uploadFile(e.target.files[0]);
-              setProduct({ ...product, mainImage: e.target.files[0].name });
+              const selectedFile = e.target.files ? e.target.files[0] : null;
+              if (selectedFile) {
+                uploadFile(selectedFile);
+                setProduct({ ...product, mainImage: selectedFile.name });
+              }
             }}
           />
           {product?.mainImage && (
