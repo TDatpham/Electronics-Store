@@ -1,3 +1,5 @@
+FULL-STACK ECOMMERCE WEBSITE:
+
 Developed a complete e-commerce solution with dual interfaces for customers and administrators.
 
 Implemented secure user authentication, including user registration, login, and Google OAuth 2.0 authentication.
