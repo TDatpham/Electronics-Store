@@ -13,21 +13,47 @@ import ProductItem from "./ProductItem";
 import Heading from "./Heading";
 
 const ProductsSection = async () => {
-  // sending API request for getting all products
-  const data = await fetch("http://localhost:3001/api/products");
-  const products = await data.json();
-  return (
-    <div className="bg-blue-500 border-t-4 border-white">
-      <div className="max-w-screen-2xl mx-auto pt-20">
-        <Heading title="FEATURED PRODUCTS" />
-        <div className="grid grid-cols-4 justify-items-center max-w-screen-2xl mx-auto py-10 gap-x-2 px-10 gap-y-8 max-xl:grid-cols-3 max-md:grid-cols-2 max-sm:grid-cols-1">
-          {products.map((product: Product) => (
-            <ProductItem key={product.id} product={product} color="white" />
-          ))}
+  try {
+    // sending API request for getting all products
+    const res = await fetch("http://localhost:3001/api/products", {
+      cache: "no-store", // Ensure fresh data
+    });
+
+    if (!res.ok) {
+      throw new Error(`Failed to fetch products: ${res.status}`);
+    }
+
+    const products = await res.json();
+
+    if (!Array.isArray(products)) {
+      return (
+        <div className="bg-blue-500 border-t-4 border-white py-10 text-center text-white">
+          <p>No products found or invalid data format.</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="bg-blue-500 border-t-4 border-white">
+        <div className="max-w-screen-2xl mx-auto pt-20">
+          <Heading title="FEATURED PRODUCTS" />
+          <div className="grid grid-cols-4 justify-items-center max-w-screen-2xl mx-auto py-10 gap-x-2 px-10 gap-y-8 max-xl:grid-cols-3 max-md:grid-cols-2 max-sm:grid-cols-1">
+            {products.map((product: Product) => (
+              <ProductItem key={product.id} product={product} color="white" />
+            ))}
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  } catch (error) {
+    console.error("ProductsSection Error:", error);
+    return (
+      <div className="bg-blue-500 border-t-4 border-white py-20 text-center text-white">
+        <Heading title="FEATURED PRODUCTS" />
+        <p className="mt-4">Unable to load products. Please ensure the backend server is running.</p>
+      </div>
+    );
+  }
 };
 
 export default ProductsSection;

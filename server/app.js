@@ -1,3 +1,6 @@
+const path = require('path');
+require('dotenv').config(); // Load from current dir (server/.env)
+require('dotenv').config({ path: path.join(__dirname, '../.env') }); // Load from root dir (.env)
 const express = require("express");
 const bcrypt = require('bcryptjs');
 const fileUpload = require("express-fileupload");

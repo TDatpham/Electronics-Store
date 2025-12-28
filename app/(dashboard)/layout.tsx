@@ -16,12 +16,24 @@ export default async function Layout({
     redirect("/");
   }
 
-  let email: string = await session?.user?.email;
-  
-  const res = await fetch(`http://localhost:3001/api/users/email/${email}`);
-  const data = await res.json();
-  // redirecting user to the home page if not admin
-  if (data.role === "user") {
+  let email: string = session.user.email;
+
+  try {
+    const res = await fetch(`http://localhost:3001/api/users/email/${email}`, { cache: 'no-store' });
+    if (!res.ok) {
+      console.error("Admin layout: Failed to fetch user data", res.status);
+      redirect("/");
+    }
+
+    const data = await res.json();
+
+    // redirecting user to the home page if not admin
+    if (data.role !== "admin") {
+      console.warn(`Access denied for user: ${email} (Role: ${data.role})`);
+      redirect("/");
+    }
+  } catch (error) {
+    console.error("Admin layout error:", error);
     redirect("/");
   }
 

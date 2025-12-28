@@ -20,17 +20,22 @@ interface ImageItem {
 }
 
 const SingleProductPage = async ({ params }: SingleProductPageProps) => {
-  // sending API request for a single product with a given product slug
-  const data = await fetch(
-    `http://localhost:3001/api/slugs/${params.productSlug}`
-  );
-  const product = await data.json();
+  let product;
+  let images;
 
-  // sending API request for more than 1 product image if it exists
-  const imagesData = await fetch(
-    `http://localhost:3001/api/images/${product.id}`
-  );
-  const images = await imagesData.json();
+  try {
+    // sending API request for a single product with a given product slug
+    const res = await fetch(`http://localhost:3001/api/slugs/${params.productSlug}`, { cache: 'no-store' });
+    if (!res.ok) throw new Error("Product not found");
+    product = await res.json();
+
+    // sending API request for more than 1 product image if it exists
+    const imagesRes = await fetch(`http://localhost:3001/api/images/${product.id}`, { cache: 'no-store' });
+    images = imagesRes.ok ? await imagesRes.json() : [];
+  } catch (error) {
+    console.error("SingleProductPage Fetch Error:", error);
+    notFound();
+  }
 
   if (!product || product.error) {
     notFound();

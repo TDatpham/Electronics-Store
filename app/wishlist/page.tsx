@@ -9,26 +9,34 @@ import { useSession } from "next-auth/react";
 
 const WishlistPage = () => {
   const { data: session, status } = useSession();
-  const {wishlist, setWishlist}= useWishlistStore();
+  const { wishlist, setWishlist } = useWishlistStore();
 
   const getWishlistByUserId = async (id: string) => {
-    const response = await fetch(`http://localhost:3001/api/wishlist/${id}`, {
-      cache: "no-store",
-    });
-    const wishlist = await response.json();
+    try {
+      const response = await fetch(`http://localhost:3001/api/wishlist/${id}`, {
+        cache: "no-store",
+      });
+      if (!response.ok) return;
 
-    const productArray: {
-      id: string;
-      title: string;
-      price: number;
-      image: string;
-      slug:string
-      stockAvailabillity: number;
-    }[] = [];
-    
-    wishlist.map((item:any) => productArray.push({id: item?.product?.id, title: item?.product?.title, price: item?.product?.price, image: item?.product?.mainImage, slug: item?.product?.slug, stockAvailabillity: item?.product?.inStock}));
-    
-    setWishlist(productArray);
+      const wishlistData = await response.json();
+
+      if (!Array.isArray(wishlistData)) return;
+
+      const productArray: {
+        id: string;
+        title: string;
+        price: number;
+        image: string;
+        slug: string
+        stockAvailabillity: number;
+      }[] = [];
+
+      wishlistData.map((item: any) => productArray.push({ id: item?.product?.id, title: item?.product?.title, price: item?.product?.price, image: item?.product?.mainImage, slug: item?.product?.slug, stockAvailabillity: item?.product?.inStock }));
+
+      setWishlist(productArray);
+    } catch (error) {
+      console.error("getWishlistByUserId Error:", error);
+    }
   };
 
   const getUserByEmail = async () => {

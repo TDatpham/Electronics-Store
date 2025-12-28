@@ -25,6 +25,7 @@ const CheckoutPage = () => {
     postalCode: "",
     orderNotice: "",
   });
+  const [paymentMethod, setPaymentMethod] = useState("card");
   const { products, total, clearCart } = useProductStore();
   const router = useRouter();
 
@@ -108,7 +109,6 @@ const CheckoutPage = () => {
           const orderId: string = data.id;
           // for every product in the order we are calling addOrderProduct function that adds fields to the customer_order_product table
           for (let i = 0; i < products.length; i++) {
-            let productId: string = products[i].id;
             addOrderProduct(orderId, products[i].id, products[i].amount);
           }
         })
@@ -159,8 +159,6 @@ const CheckoutPage = () => {
       }),
     });
   };
-
-  
 
   useEffect(() => {
     if (products.length === 0) {
@@ -362,116 +360,150 @@ const CheckoutPage = () => {
               </div>
             </section>
 
-            <section aria-labelledby="payment-heading" className="mt-10">
-              <h2
-                id="payment-heading"
-                className="text-lg font-medium text-gray-900"
-              >
-                Payment details
-              </h2>
-
-              <div className="mt-6 grid grid-cols-3 gap-x-4 gap-y-6 sm:grid-cols-4">
-                <div className="col-span-3 sm:col-span-4">
-                  <label
-                    htmlFor="name-on-card"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Name on card
+            <section className="mt-10">
+              <h2 className="text-lg font-medium text-gray-900">Payment Method</h2>
+              <div className="mt-4 space-y-4 sm:flex sm:items-center sm:space-x-10 sm:space-y-0">
+                <div className="flex items-center">
+                  <input
+                    id="card"
+                    name="payment-method"
+                    type="radio"
+                    checked={paymentMethod === "card"}
+                    onChange={() => setPaymentMethod("card")}
+                    className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <label htmlFor="card" className="ml-3 block text-sm font-medium text-gray-700">
+                    Credit Card
                   </label>
-                  <div className="mt-1">
-                    <input
-                      type="text"
-                      id="name-on-card"
-                      name="name-on-card"
-                      autoComplete="cc-name"
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                      value={checkoutForm.cardName}
-                      onChange={(e) =>
-                        setCheckoutForm({
-                          ...checkoutForm,
-                          cardName: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
                 </div>
-
-                <div className="col-span-3 sm:col-span-4">
-                  <label
-                    htmlFor="card-number"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Card number
+                <div className="flex items-center">
+                  <input
+                    id="paypal"
+                    name="payment-method"
+                    type="radio"
+                    checked={paymentMethod === "paypal"}
+                    onChange={() => setPaymentMethod("paypal")}
+                    className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <label htmlFor="paypal" className="ml-3 block text-sm font-medium text-gray-700">
+                    PayPal
                   </label>
-                  <div className="mt-1">
-                    <input
-                      type="text"
-                      id="card-number"
-                      name="card-number"
-                      autoComplete="cc-number"
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                      value={checkoutForm.cardNumber}
-                      onChange={(e) =>
-                        setCheckoutForm({
-                          ...checkoutForm,
-                          cardNumber: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-
-                <div className="col-span-2 sm:col-span-3">
-                  <label
-                    htmlFor="expiration-date"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Expiration date (MM/YY)
-                  </label>
-                  <div className="mt-1">
-                    <input
-                      type="text"
-                      name="expiration-date"
-                      id="expiration-date"
-                      autoComplete="cc-exp"
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                      value={checkoutForm.expirationDate}
-                      onChange={(e) =>
-                        setCheckoutForm({
-                          ...checkoutForm,
-                          expirationDate: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="cvc"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    CVC or CVV
-                  </label>
-                  <div className="mt-1">
-                    <input
-                      type="text"
-                      name="cvc"
-                      id="cvc"
-                      autoComplete="csc"
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                      value={checkoutForm.cvc}
-                      onChange={(e) =>
-                        setCheckoutForm({
-                          ...checkoutForm,
-                          cvc: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
                 </div>
               </div>
             </section>
+
+            {paymentMethod === "card" && (
+              <section aria-labelledby="payment-heading" className="mt-10">
+                <h2
+                  id="payment-heading"
+                  className="text-lg font-medium text-gray-900"
+                >
+                  Payment details
+                </h2>
+
+                <div className="mt-6 grid grid-cols-3 gap-x-4 gap-y-6 sm:grid-cols-4">
+                  <div className="col-span-3 sm:col-span-4">
+                    <label
+                      htmlFor="name-on-card"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Name on card
+                    </label>
+                    <div className="mt-1">
+                      <input
+                        type="text"
+                        id="name-on-card"
+                        name="name-on-card"
+                        autoComplete="cc-name"
+                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                        value={checkoutForm.cardName}
+                        onChange={(e) =>
+                          setCheckoutForm({
+                            ...checkoutForm,
+                            cardName: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  <div className="col-span-3 sm:col-span-4">
+                    <label
+                      htmlFor="card-number"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Card number
+                    </label>
+                    <div className="mt-1">
+                      <input
+                        type="text"
+                        id="card-number"
+                        name="card-number"
+                        autoComplete="cc-number"
+                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                        value={checkoutForm.cardNumber}
+                        onChange={(e) =>
+                          setCheckoutForm({
+                            ...checkoutForm,
+                            cardNumber: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  <div className="col-span-2 sm:col-span-3">
+                    <label
+                      htmlFor="expiration-date"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Expiration date (MM/YY)
+                    </label>
+                    <div className="mt-1">
+                      <input
+                        type="text"
+                        name="expiration-date"
+                        id="expiration-date"
+                        autoComplete="cc-exp"
+                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                        value={checkoutForm.expirationDate}
+                        onChange={(e) =>
+                          setCheckoutForm({
+                            ...checkoutForm,
+                            expirationDate: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="cvc"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      CVC or CVV
+                    </label>
+                    <div className="mt-1">
+                      <input
+                        type="text"
+                        name="cvc"
+                        id="cvc"
+                        autoComplete="csc"
+                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                        value={checkoutForm.cvc}
+                        onChange={(e) =>
+                          setCheckoutForm({
+                            ...checkoutForm,
+                            cvc: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>
+              </section>
+            )}
 
             <section aria-labelledby="shipping-heading" className="mt-10">
               <h2
@@ -657,13 +689,24 @@ const CheckoutPage = () => {
             </section>
 
             <div className="mt-10 border-t border-gray-200 pt-6 ml-0">
-              <button
-                type="button"
-                onClick={makePurchase}
-                className="w-full rounded-md border border-transparent bg-blue-500 px-20 py-2 text-lg font-medium text-white shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 focus:ring-offset-gray-50 sm:order-last"
-              >
-                Pay Now
-              </button>
+              {paymentMethod === "card" ? (
+                <button
+                  type="button"
+                  onClick={makePurchase}
+                  className="w-full rounded-md border border-transparent bg-blue-500 px-20 py-2 text-lg font-medium text-white shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 focus:ring-offset-gray-50 sm:order-last"
+                >
+                  Pay Now
+                </button>
+              ) : (
+                <a
+                  href="https://www.paypal.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full inline-block text-center rounded-md border border-transparent bg-yellow-400 px-20 py-3 text-lg font-medium text-black shadow-sm hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 focus:ring-offset-gray-50 sm:order-last"
+                >
+                  Pay with PayPal
+                </a>
+              )}
             </div>
           </div>
         </form>

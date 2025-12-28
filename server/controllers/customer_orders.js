@@ -17,6 +17,8 @@ async function createCustomerOrder(request, response) {
       country,
       orderNotice,
       total,
+      paypalOrderId,
+      paymentStatus,
     } = request.body;
     const corder = await prisma.customer_order.create({
       data: {
@@ -33,6 +35,8 @@ async function createCustomerOrder(request, response) {
         country,
         orderNotice,
         total,
+        paypalOrderId,
+        paymentStatus,
       },
     });
     return response.status(201).json(corder);
@@ -60,6 +64,8 @@ async function updateCustomerOrder(request, response) {
       country,
       orderNotice,
       total,
+      paypalOrderId,
+      paymentStatus,
     } = request.body;
 
     const existingOrder = await prisma.customer_order.findUnique({
@@ -91,6 +97,8 @@ async function updateCustomerOrder(request, response) {
         country,
         orderNotice,
         total,
+        paypalOrderId,
+        paymentStatus,
       },
     });
 
@@ -137,10 +145,80 @@ async function getAllOrders(request, response) {
   }
 }
 
+async function getSalesStatistics(request, response) {
+  try {
+    const stats = await prisma.customer_order_product.groupBy({
+      by: ["productId"],
+      _sum: {
+        quantity: true,
+      },
+      orderBy: {
+        _sum: {
+          quantity: "desc",
+        },
+      },
+      take: 5,
+    });
+
+    const enrichedStats = await Promise.all(
+      stats.map(async (stat) => {
+        const product = await prisma.product.findUnique({
+          where: { id: stat.productId },
+          select: { title: true },
+        });
+        return {
+          name: product?.title || "Unknown",
+          quantity: stat._sum.quantity,
+        };
+      })
+    );
+
+    return response.json(enrichedStats);
+  } catch (error) {
+    console.error("Error fetching sales statistics:", error);
+    return response.status(500).json({ error: "Error fetching sales statistics" });
+  }
+}
+
+async function getCategorySalesStatistics(request, response) {
+  try {
+    const stats = await prisma.customer_order_product.findMany({
+      include: {
+        product: {
+          include: {
+            category: true,
+          },
+        },
+      },
+    });
+
+    const categorySales = {};
+    stats.forEach((item) => {
+      const categoryName = item.product?.category?.name || "Other";
+      if (!categorySales[categoryName]) {
+        categorySales[categoryName] = 0;
+      }
+      categorySales[categoryName] += item.quantity;
+    });
+
+    const formattedStats = Object.keys(categorySales).map((name) => ({
+      name,
+      value: categorySales[name],
+    }));
+
+    return response.json(formattedStats);
+  } catch (error) {
+    console.error("Error fetching category sales statistics:", error);
+    return response.status(500).json({ error: "Error fetching category sales statistics" });
+  }
+}
+
 module.exports = {
   createCustomerOrder,
   updateCustomerOrder,
   deleteCustomerOrder,
   getCustomerOrder,
   getAllOrders,
+  getSalesStatistics,
+  getCategorySalesStatistics,
 };

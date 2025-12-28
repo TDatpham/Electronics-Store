@@ -1,17 +1,22 @@
-// *********************
-// IN DEVELOPMENT
-// *********************
-
 import React from "react";
 import { FaArrowUp } from "react-icons/fa6";
 
+interface StatsElementProps {
+  title: string;
+  value: string | number;
+  percentage: string;
+  color?: string;
+}
 
-const StatsElement = () => {
+const StatsElement = ({ title, value, percentage, color = "bg-blue-500" }: StatsElementProps) => {
   return (
-    <div className="w-80 h-32 bg-blue-500 text-white flex flex-col justify-center items-center rounded-md max-md:w-full">
-      <h4 className="text-xl text-white">New Products</h4>
-      <p className="text-2xl font-bold">2,230</p>
-      <p className="text-green-300 flex gap-x-1 items-center"><FaArrowUp />12.5% Since last month</p>
+    <div className={`w-full h-32 ${color} text-white flex flex-col justify-center items-center rounded-xl shadow-md transition-all hover:scale-[1.02]`}>
+      <h4 className="text-lg text-blue-100">{title}</h4>
+      <p className="text-3xl font-bold tracking-tight">{value}</p>
+      <p className="text-green-300 text-sm flex gap-x-1 items-center font-medium">
+        <FaArrowUp className="text-xs" />
+        {percentage} <span className="text-blue-200 font-normal">Kể từ tháng trước</span>
+      </p>
     </div>
   );
 };

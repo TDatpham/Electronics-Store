@@ -7,11 +7,22 @@ interface Props {
 
 // sending api request for search results for a given search text
 const SearchPage = async ({ searchParams: { search } }: Props) => {
-  const data = await fetch(
-    `http://localhost:3001/api/search?query=${search || ""}`
-  );
+  let products = [];
+  try {
+    const res = await fetch(
+      `http://localhost:3001/api/search?query=${search || ""}`,
+      { cache: "no-store" }
+    );
+    if (res.ok) {
+      products = await res.json();
+    }
+  } catch (error) {
+    console.error("SearchPage Fetch Error:", error);
+  }
 
-  const products = await data.json();
+  if (!Array.isArray(products)) {
+    products = [];
+  }
 
   return (
     <div>
